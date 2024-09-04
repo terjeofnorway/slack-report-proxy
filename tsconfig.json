@@ -1,8 +1,15 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+    "compilerOptions": {
+        "composite": true,
+        "skipLibCheck": true,
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "noEmit": false,
+        "target": "es2017"
+    },
+    "include": ["src/**/*"]
 }
