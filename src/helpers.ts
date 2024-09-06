@@ -3,13 +3,22 @@ const slackHook = process.env.SLACK_HOOK;
 type SlackData = {
     version: string;
     firstContentfulPaint: string;
+    largestContentfulPaint: string;
     speedIndex: string;
     timeToInteractive: string;
     totalResourceSize: number;
     totalTransferSize: number;
 };
 
-const buildSlackMessage = ({ version, firstContentfulPaint, speedIndex, timeToInteractive, totalResourceSize, totalTransferSize }: SlackData) => {
+const buildSlackMessage = ({
+    version,
+    firstContentfulPaint,
+    largestContentfulPaint,
+    speedIndex,
+    timeToInteractive,
+    totalResourceSize,
+    totalTransferSize,
+}: SlackData) => {
     const bundleSize = totalResourceSize / 1024;
     const bundleSizeInKb = bundleSize.toFixed(2);
     const bundleDisplaySize = `${bundleSizeInKb} kb`;
@@ -76,6 +85,31 @@ const buildSlackMessage = ({ version, firstContentfulPaint, speedIndex, timeToIn
                             },
                             {
                                 type: 'text',
+                                text: `Largest Contentful Paint: ${largestContentfulPaint}`,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                type: 'divider',
+            },
+            {
+                type: 'rich_text',
+                elements: [
+                    {
+                        type: 'rich_text_section',
+                        elements: [
+                            {
+                                type: 'emoji',
+                                name: 'white_check_mark',
+                            },
+                            {
+                                type: 'text',
+                                text: ' ',
+                            },
+                            {
+                                type: 'text',
                                 text: `Speed Index: ${speedIndex}`,
                             },
                         ],
@@ -118,7 +152,7 @@ const buildSlackMessage = ({ version, firstContentfulPaint, speedIndex, timeToIn
                         elements: [
                             {
                                 type: 'emoji',
-                                name: bundleSize > 500 ? 'grimasing' : 'white_check_mark',
+                                name: bundleSize > 500 ? 'grimacing' : 'white_check_mark',
                             },
                             {
                                 type: 'text',
@@ -163,22 +197,13 @@ export const calculateTotalRequest = (networkRequests: NetworkRequestItem[]) => 
     return { totalResourceSize, totalTransferSize };
 };
 
-export const sendToSlack = async ({
-    version,
-    firstContentfulPaint,
-    speedIndex,
-    timeToInteractive,
-    totalResourceSize,
-    totalTransferSize,
-}: SlackData) => {
+export const sendToSlack = async (slackData: SlackData) => {
     if (!slackHook) {
         console.error('Missing SLACK_HOOK environment variable');
         return;
     }
 
-    const data = JSON.stringify(
-        buildSlackMessage({ version, firstContentfulPaint, speedIndex, timeToInteractive, totalResourceSize, totalTransferSize })
-    );
+    const data = JSON.stringify(buildSlackMessage(slackData));
 
     fetch(slackHook, {
         method: 'POST',

@@ -13,19 +13,19 @@ app.get('/', (req, res) => {
 });
 
 app.post('/lighthouse-report', (req, res) => {
-    const { audits } = req.body;
+    const { version, audits } = req.body;
     const networkRequests = audits['network-requests'].details.items;
 
     const firstContentfulPaint = audits['first-contentful-paint'].displayValue;
-    const timeToInteractive = audits['speed-index'].interactive;
+    const largestContentfulPaint = audits['largest-contentful-paint'].displayValue;
+    const timeToInteractive = audits['interactive'].displayValue;
     const speedIndex = audits['speed-index'].displayValue;
-    const version = '1.2.3';
 
     const { totalResourceSize, totalTransferSize } = calculateTotalRequest(networkRequests);
 
     console.log(firstContentfulPaint);
 
-    sendToSlack({ version, firstContentfulPaint, speedIndex, timeToInteractive, totalResourceSize, totalTransferSize });
+    sendToSlack({ version, firstContentfulPaint, largestContentfulPaint, speedIndex, timeToInteractive, totalResourceSize, totalTransferSize });
     res.sendStatus(200);
 });
 
